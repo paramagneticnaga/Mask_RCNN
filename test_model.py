@@ -15,23 +15,23 @@ from mrcnn.model import mold_image
 
 
 class MaskDataset(Dataset):
-    # load the dataset definitions
+    # Load the dataset definition- directory path and training information
     def load_dataset(self, dataset_dir, is_train=True):
-        # define one class
+        # define classes
         self.add_class("dataset", 1, "with_mask")
         self.add_class("dataset", 2, "without_mask")
-        # define data locations
+        # define data locations-Path to images and annotations
         images_dir = dataset_dir + "/images /"
         annotations_dir = dataset_dir + "/annots/"
-        # find all images
+        # find all images-iterating over all images
         for filename in listdir(images_dir):
             # extract image id
             image_id = filename[:-4]
-            # skip all images after 150 if we are building the train set
-            if is_train and int(image_id) >= 800:
+            # Split to train test set 
+            if is_train and int(image_id) >= 600:
                 continue
-            # skip all images before 150 if we are building the test/val set
-            if not is_train and int(image_id) < 800:
+            # skip all images before 600 if we are building the test/val set
+            if not is_train and int(image_id) < 600:
                 continue
             img_path = images_dir + filename
             ann_path = annotations_dir + image_id + ".xml"
@@ -117,11 +117,11 @@ plt.imshow(image)
 plt.imshow(mask[:, :, 0], cmap="gray", alpha=0.5)
 plt.show()
 
-
+# Mask configuration
 class MaskConfig(Config):
     NAME = "Mask_cfg"
     NUM_CLASSES = 2 + 1
-    STEPS_PER_EPOCH = 131
+    STEPS_PER_EPOCH = 13
 
 
 config = MaskConfig()
@@ -138,6 +138,7 @@ model.load_weights(
         "mrcnn_class_logits",
     ],
 )
+# Training the model
 model.train(
     train_set,
     test_set,
@@ -146,7 +147,7 @@ model.train(
     layers="heads",
 )
 
-
+# Predicting on new images or test images
 class PredictionConfig(Config):
     Name = "Mask_cfg"
     NUM_CLASSES = 1 + 1
